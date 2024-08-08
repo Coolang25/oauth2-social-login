@@ -34,26 +34,31 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
-    // set the name of the attribute the CsrfToken will be populated on
-    requestHandler.setCsrfRequestAttributeName("_csrf");
     http
-        .csrf((csrf) -> csrf
-                .csrfTokenRequestHandler(requestHandler)
-        )
+        .csrf(Customizer.withDefaults())
         .cors(Customizer.withDefaults())
         .authorizeHttpRequests()
           .anyRequest()
           .authenticated()
           .and()
-        .oauth2Login()
-            //.loginPage("/login")
-            .successHandler(oauthLoginSuccessHandler)
-            .userInfoEndpoint()
-              .userService(oauth2UserService)
-            .and()
-            .defaultSuccessUrl("/api/v1/demo", true)
-            .and()
+
+        .oauth2Login(
+                oauth2 ->
+                        oauth2
+                                //.loginPage("/login")
+                                .userInfoEndpoint(userEnpoint -> userEnpoint.userService(oauth2UserService))
+                                .successHandler(oauthLoginSuccessHandler)
+                                //.defaultSuccessUrl("/api/v1/demo", true)
+        )
+//        .oauth2Login()
+//            //.loginPage("/login")
+//            .userInfoEndpoint()
+//              .userService(oauth2UserService)
+//            .and()
+//            .defaultSuccessUrl("/api/v1/demo", true)
+//            .successHandler(oauthLoginSuccessHandler)
+//
+//            .and()
         .logout()
             .invalidateHttpSession(true)
             .clearAuthentication(true)
@@ -68,20 +73,6 @@ public class SecurityConfig {
     return http.build();
   }
 
-//  private static final class CsrfCookieFilter extends OncePerRequestFilter {
-//
-//    @Override
-//    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-//            throws ServletException,
-//            IOException {
-//      CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-//      // Render the token value to a cookie by causing the deferred token to be loaded
-//      csrfToken.getToken();
-//
-//      filterChain.doFilter(request, response);
-//    }
-//
-//  }
 
   @Autowired
   private CustomOAuth2UserService oauth2UserService;

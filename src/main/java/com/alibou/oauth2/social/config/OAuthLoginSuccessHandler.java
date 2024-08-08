@@ -7,11 +7,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 @Component
-public class OAuthLoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
+public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     @Autowired
     UserService userService;
 
@@ -22,6 +24,6 @@ public class OAuthLoginSuccessHandler extends SavedRequestAwareAuthenticationSuc
 
         userService.saveUser(email);
 
-        super.onAuthenticationSuccess(request, response, authentication);
+        getRedirectStrategy().sendRedirect(request, response, "/api/v1/demo");
     }
 }
